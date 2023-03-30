@@ -1,0 +1,39 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Barcode Scanner</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.js"></script>
+  </head>
+  <body>
+    <video id="preview"></video>
+    <script>
+      navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        var preview = document.getElementById('preview');
+        preview.srcObject = stream;
+        preview.play();
+
+        Quagga.init({
+          inputStream : {
+            name : "Live",
+            type : "LiveStream",
+            target: document.querySelector('#preview')
+          },
+          decoder : {
+            readers : ["ean_reader"]
+          }
+        }, function(err) {
+            if (err) {
+                console.log(err);
+                return
+            }
+            console.log("Initialization finished. Ready to start");
+            Quagga.start();
+        });
+
+        Quagga.onDetected(function(result) {
+          alert(`format: ${result.codeResult.format}, code: ${result.codeResult.code}`);
+        });
+      });
+    </script>
+  </body>
+</html>

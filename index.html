@@ -1,45 +1,63 @@
+<!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Barcode Scanner</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.js"></script>
-  </head>
-  <body>
-    <video id="preview"></video>
-    <div id="click">Click</div>
+<head>
+	<title>Barcode Scanner</title>
+	<script src="https://cdn.jsdelivr.net/npm/quagga/dist/quagga.min.js"></script>
+</head>
+<body>
+	<h1>Barcode Scanner</h1>
+	<div id="interactive" class="viewport"></div>
+	<script>
+		// 获取浏览器相机权限
+		navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+			.then(function(stream) {
+				var video = document.createElement('video');
+				video.srcObject = stream;
+				video.setAttribute('playsinline', '');
+				video.play();
+				requestAnimationFrame(tick);
+			});
 
-    <script>
-      window.playVideo = function() {
-        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream) {
-        var preview = document.getElementById('preview');
-        preview.srcObject = stream;
-        preview.play();
+		// 初始化QuaggaJS条形码解码库
+		Quagga.init({
+			inputStream: {
+				name: "Live",
+				type: "LiveStream",
+				target: document.querySelector('#interactive'),
+				constraints: {
+					width: { min: 640 },
+					height: { min: 480 },
+					aspectRatio: { min: 1, max: 100 },
+					facingMode: "environment" // or "user" for front camera
+				},
+			},
+			decoder: {
+				readers: ["ean_reader", "upc_reader"]
+			}
+		}, function(err) {
+			if (err) {
+				console.log(err);
+				return
+			}
+			console.log("Initialization finished. Ready to start");
+			Quagga.start();
+		});
 
-        Quagga.init({
-          inputStream : {
-            name : "Live",
-            type : "LiveStream",
-            target: document.querySelector('#preview')
-          },
-          decoder : {
-            readers : ["code_128_reader"]
-          }
-        }, function(err) {
-            if (err) {
-                console.log("Init failed: ", err);
-                return
-            }
-            console.log("Initialization finished. Ready to start");
-            Quagga.start();
-        });
+		// 监听QuaggaJS库的扫描事件，解析条形码并alert出来
+		Quagga.onDetected(function(result) {
+			var code = result.codeResult.code;
+			var format = result.codeResult.format;
+			alert("Barcode detected: " + code + " (" + format + ")");
+			Quagga.stop();
+		});
 
-        Quagga.onDetected(function(result) {
-          alert(`format: ${result.codeResult.format}, code: ${result.codeResult.code}`);
-        });
-      });
-      }
-
-      document.addEventListener("click", window.playVideo);
-    </script>
-  </body>
+		// 定期执行扫描操作
+		function tick() {
+			if (document.querySelector('#interactive video').readyState === 4) {
+				Quagga.start();
+			}
+			requestAnimationFrame(tick);
+		}
+	</script>
+</body>
 </html>

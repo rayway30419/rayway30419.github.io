@@ -6,8 +6,10 @@
   </head>
   <body>
     <video id="preview"></video>
+    <button onclick="playVideo()">click</button>
     <script>
-      navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+      window.playVideo = function() {
+        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
         var preview = document.getElementById('preview');
         preview.srcObject = stream;
         preview.play();
@@ -34,6 +36,7 @@
           alert(`format: ${result.codeResult.format}, code: ${result.codeResult.code}`);
         });
       });
+      }
     </script>
   </body>
 </html>

@@ -6,7 +6,8 @@
   </head>
   <body>
     <video id="preview"></video>
-    <button onclick="playVideo()">click</button>
+    <div id="click">Click</div>
+
     <script>
       window.playVideo = function() {
         navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
@@ -37,6 +38,8 @@
         });
       });
       }
+
+      document.addEventListener("click", window.playVideo);
     </script>
   </body>
 </html>

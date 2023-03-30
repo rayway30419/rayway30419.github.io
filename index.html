@@ -10,7 +10,7 @@
 
     <script>
       window.playVideo = function() {
-        navigator.mediaDevices.getUserMedia({ video: true }).then(function(stream) {
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream) {
         var preview = document.getElementById('preview');
         preview.srcObject = stream;
         preview.play();

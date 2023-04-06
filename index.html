@@ -1,44 +1,29 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>Quagga2 Barcode Scanner</title>
-</head>
-<body>
-  <div id="interactive" class="viewport"></div>
-  <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.js"></script>
-  <script>
-    // 获取需要扫描的容器元素
-    const interactive = document.getElementById('interactive');
+  <head>
+    <title>QR Code Scanner</title>
+    <meta charset="UTF-8" />
+    <script src="https://unpkg.com/html5-qrcode"></script>
+  </head>
+  <body>
+    <div id="qr-reader" style="width:500px"></div>
+    <div id="qr-reader-results"></div>
+    <script>
+      var resultContainer = document.getElementById('qr-reader-results');
+      var lastResult, countResults = 0;
 
-    // 配置 Quagga2
-    Quagga.init({
-      inputStream: {
-        name: "Live",
-        type: "LiveStream",
-        target: interactive,
-        constraints: {
-          facingMode: "environment" // 启用后置摄像头
-        },
-      },
-      decoder: {
-        readers: ["code_128_reader", "ean_reader"] // 支持的条码类型
-      },
-    });
+      function onScanSuccess(decodedText, decodedResult) {
+          if (decodedText !== lastResult) {
+              ++countResults;
+              lastResult = decodedText;
+              // Handle on success condition with the decoded message.
+              alert(`Scan result ${decodedText}`, decodedResult);
+          }
+      }
 
-    // 监听扫描结果
-    Quagga.onDetected((result) => {
-      // 解析扫描结果
-      const barcode = result.codeResult.code;
-      const barcodeFormat = result.codeResult.format;
-
-      // 显示扫描结果
-      alert(`Barcode Format: ${barcodeFormat}, Barcode Content: ${barcode}`);
-    });
-
-    // 启动扫描
-    Quagga.start();
-
-  </script>
-</body>
+      var html5QrcodeScanner = new Html5QrcodeScanner(
+          "qr-reader", { fps: 10, qrbox: 250 });
+      html5QrcodeScanner.render(onScanSuccess);
+    </script>
+  </body>
 </html>
